@@ -10,6 +10,7 @@ public class TerrainSystem : MonoBehaviour
     [SerializeField] private GameObject SectorPrefab;
 
     private Transform[] SectorPool;//pool of gameobjects with sector mesh
+    private Mesh sectorMesh;
 
     private Vector2Int lastWindowSize = Vector2Int.zero;
 
@@ -30,6 +31,11 @@ public class TerrainSystem : MonoBehaviour
 
     void Init()
     {
+        //destroy children
+        foreach (Transform child in transform)
+            Destroy(child.gameObject);
+        Destroy(sectorMesh);//destroy mesh
+
         #region sector mesh
         //get FOVs
         Camera cam = Camera.current;
@@ -45,7 +51,7 @@ public class TerrainSystem : MonoBehaviour
 
         float sectorAngle = Utility.tau / bigSectorCount;
 
-        Mesh mesh = GetSectorMesh(radius, SubsectorCount, sectorAngle);
+        sectorMesh = GetSectorMesh(radius, SubsectorCount, sectorAngle);
         
         #endregion
 
@@ -63,7 +69,7 @@ public class TerrainSystem : MonoBehaviour
                     sectorParent
                 ).transform;
             SectorPool[i] = sector;
-            sector.GetComponent<MeshFilter>().mesh = mesh;//set mesh
+            sector.GetComponent<MeshFilter>().sharedMesh = sectorMesh;//set mesh
         }
         #endregion
     }

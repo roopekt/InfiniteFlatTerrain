@@ -580,6 +580,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1debd3b90a2c96498623a4de85b325d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SquareWidth: 5
-  SubsectorCount: 5
+  SquareWidth: 1
+  SubsectorCount: 1000
   SectorPrefab: {fileID: 6361473289687248720, guid: 3e57321c1e276d149bf75c0d868c33ef, type: 3}
