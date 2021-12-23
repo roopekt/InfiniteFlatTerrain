@@ -1,4 +1,5 @@
-#define PI 3.14159265358979323846
+#include "Constants.cginc"
+
 #define DEFSEED 3145 //default seed
 
 int HashInt(int x) {
