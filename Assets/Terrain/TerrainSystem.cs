@@ -22,7 +22,7 @@ public class TerrainSystem : MonoBehaviour
     //for shaders
     private int kernelId_renderTextures;
     private RenderTexture vertexTexture;
-    private bool writeTargetSelect = false;
+    //private bool writeTargetSelect = false;
     private Vector3Int dispatch_threadGroupCounts;
 
     //uniform name ids
@@ -190,7 +190,7 @@ public class TerrainSystem : MonoBehaviour
         kernelId_renderTextures = ComputeShaderAsset.FindKernel("RenderTextures");
 
         //create the vertex texture
-        var vertexTextureDesc = new RenderTextureDescriptor(littleSectorCount + 1, radius + 1, RenderTextureFormat.ARGBFloat, 0, 1);
+        var vertexTextureDesc = new RenderTextureDescriptor(2 * (littleSectorCount + 1), radius + 1, RenderTextureFormat.ARGBFloat, 0, 1);
         vertexTextureDesc.enableRandomWrite = true;
         vertexTexture = new RenderTexture(vertexTextureDesc);
         vertexTexture.wrapMode = TextureWrapMode.Repeat;
