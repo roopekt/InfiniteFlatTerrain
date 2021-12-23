@@ -251,8 +251,8 @@ Material:
     - _ZTestGBuffer: 4
     - _ZTestTransparent: 4
     - _ZWrite: 1
-    - uTerrain_littleSectorCount: 2016
-    - uTerrain_radius: 471
+    - uTerrain_littleSectorCount: 990
+    - uTerrain_radius: 242
     m_Colors:
     - Color_d9c7e780620747ada1d182f878f2dd09: {r: 0.19069901, g: 0.735849, b: 0.10065857, a: 1}
     - _BaseColor: {r: 0.17086382, g: 0.745283, b: 0, a: 1}

@@ -52,7 +52,7 @@ float3 GetNormal(uint2 uv)
 
 float GetHeight(float2 pos)
 {
-	return LayeredPerlin2D(pos, 8, 1. / 1000.) * 800;
+	return LayeredPerlin2D(pos, 8, 1. / 1000.) * 800 + 2 * 800;
 }
 
 [numthreads(8,8,1)]
