@@ -2,6 +2,7 @@
 #include "Perlin.cginc"
 
 #pragma kernel RenderTextures
+#pragma kernel RenderNormals
 
 // two textures side by side:
 // 
@@ -11,6 +12,7 @@
 // | └───┴───┘
 //   --> x/ang
 RWTexture2D<float4> bTerrain_VertexTexturePair;
+RWTexture2D<float4> bTerrain_NormalTexturePair;
 
 //parameters
 float3 uTerrain_targetPos;
@@ -19,7 +21,7 @@ uint uTerrain_radius;
 float uTerrain_coveragePercent;
 bool uTerrain_writeTargetSelect;//specifies, which part of bTerrain_VertexTexturePair to write to
 
-float3 GetVertexPos(uint3 uv)
+float3 GetVertexPos(uint2 uv)
 {
 	float angleX = uv.x * (TAU / (float)uTerrain_littleSectorCount);
 
@@ -33,9 +35,24 @@ float3 GetVertexPos(uint3 uv)
 		);
 }
 
+float3 GetNormal(uint2 uv)
+{
+	uv -= uint2(uv.x >= uTerrain_littleSectorCount, 0);
+	uv -= uint2(0, uv.y >= uTerrain_radius);
+
+	//numerical partial derivatives
+	float3 p00 = (float3)bTerrain_VertexTexturePair[uv];
+	float3 p10 = (float3)bTerrain_VertexTexturePair[uv + uint2(1, 0)];
+	float3 p01 = (float3)bTerrain_VertexTexturePair[uv + uint2(0, 1)];
+	float3 ddx = p00 - p10;
+	float3 ddy = p00 - p01;
+
+	return normalize(cross(ddx, ddy));
+}
+
 float GetHeight(float2 pos)
 {
-	return LayeredPerlin2D(pos, 3, 1. / 40.) * 25;
+	return LayeredPerlin2D(pos, 8, 1. / 1000.) * 800;
 }
 
 [numthreads(8,8,1)]
@@ -45,9 +62,15 @@ void RenderTextures (uint3 uv : SV_DispatchThreadID)
 	if (uv.x > uTerrain_littleSectorCount || uv.y > uTerrain_radius)
 		return;
 
-	float3 vertexPos = GetVertexPos(uv);
+	float3 vertexPos = GetVertexPos(uv.xy);
 	vertexPos += float3(0, GetHeight(vertexPos.xz), 0);
 
 	//uv += uint3(uTerrain_writeTargetSelect * uTerrain_littleSectorCount, 0, 0);//select target
 	bTerrain_VertexTexturePair[uv.xy] = float4(vertexPos, 0);
+}
+
+[numthreads(8, 8, 1)]
+void RenderNormals(uint3 uv : SV_DispatchThreadID)
+{
+	bTerrain_NormalTexturePair[uv.xy] = float4(GetNormal(uv.xy), 0);
 }

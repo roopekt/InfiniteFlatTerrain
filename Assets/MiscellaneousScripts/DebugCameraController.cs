@@ -39,6 +39,9 @@ public class DebugCameraController : MonoBehaviour
         //rotate
         input = Quaternion.AngleAxis(angX, Vector3.up) * input;
 
+        if (Input.GetKey(KeyCode.LeftControl))
+            input *= 3;
+
         //move
         transform.position += input * FlyingSpeed * Time.deltaTime;
     }

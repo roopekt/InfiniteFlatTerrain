@@ -21,7 +21,9 @@ public class TerrainSystem : MonoBehaviour
 
     //for shaders
     private int kernelId_renderTextures;
+    private int kernelId_renderNormals;
     private RenderTexture vertexTexture;
+    private RenderTexture normalTexture;
     //private bool writeTargetSelect = false;
     private Vector3Int dispatch_threadGroupCounts;
 
@@ -93,6 +95,7 @@ public class TerrainSystem : MonoBehaviour
 
         SetupShaders(radius, bigSectorCount * SubsectorCount);
     }
+
     private void OnDestroy()
     {
         //destroy children
@@ -103,9 +106,11 @@ public class TerrainSystem : MonoBehaviour
         if (sectorMesh)
             Destroy(sectorMesh);
 
-        //if vertex texture isn't null, release it
+        //if not null, release
         vertexTexture?.Release();
+        normalTexture?.Release();
     }
+
     Mesh GetSectorMesh(
         int radius,//number of "rings of vertices" raround the centre
         int subsectorCount,//number of internal sectors within this sector
@@ -186,20 +191,33 @@ public class TerrainSystem : MonoBehaviour
 
         Material Mat = SectorPrefab.GetComponent<MeshRenderer>().sharedMaterial;
 
-        //find RenderTextures kernel
+        //find kernels
         kernelId_renderTextures = ComputeShaderAsset.FindKernel("RenderTextures");
+        kernelId_renderNormals = ComputeShaderAsset.FindKernel("RenderNormals");
 
-        //create the vertex texture
+        #region setup textures
+        //create vertex texture
         var vertexTextureDesc = new RenderTextureDescriptor(2 * (littleSectorCount + 1), radius + 1, RenderTextureFormat.ARGBFloat, 0, 1);
         vertexTextureDesc.enableRandomWrite = true;
         vertexTexture = new RenderTexture(vertexTextureDesc);
-        vertexTexture.wrapMode = TextureWrapMode.Repeat;
         vertexTexture.Create();
 
-        //bind the vertex texture
+        //bind vertex texture
         string bufferName = "bTerrain_VertexTexturePair";
         ComputeShaderAsset.SetTexture(kernelId_renderTextures, bufferName, vertexTexture, 0);
-        Mat.SetTexture("bTerrain_VertexTexturePair", vertexTexture);
+        ComputeShaderAsset.SetTexture(kernelId_renderNormals, bufferName, vertexTexture, 0);
+        Mat.SetTexture(bufferName, vertexTexture);
+
+        //create normal texture
+        var normalTextureDesc = vertexTextureDesc;
+        normalTexture = new RenderTexture(normalTextureDesc);
+        normalTexture.Create();
+
+        //bind normal texture
+        bufferName = "bTerrain_NormalTexturePair";
+        ComputeShaderAsset.SetTexture(kernelId_renderNormals, bufferName, normalTexture, 0);
+        Mat.SetTexture(bufferName, normalTexture);
+        #endregion
 
         #region setup uniforms
         //target pos
@@ -240,5 +258,6 @@ public class TerrainSystem : MonoBehaviour
         //dispatch
         var tgCounts = dispatch_threadGroupCounts;
         ComputeShaderAsset.Dispatch(kernelId_renderTextures, tgCounts.x, tgCounts.y, tgCounts.z);
+        ComputeShaderAsset.Dispatch(kernelId_renderNormals, tgCounts.x, tgCounts.y, tgCounts.z);
     }
 }
