@@ -4,7 +4,7 @@ using UnityEngine;
 [RequireComponent(typeof(Camera))]
 public class NoFarPlane : MonoBehaviour
 {
-    void Awake()
+    void Start()
     {
         Camera cam = GetComponent<Camera>();
 
