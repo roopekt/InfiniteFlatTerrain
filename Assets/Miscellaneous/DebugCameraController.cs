@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 //simple flying camera controller
 public class DebugCameraController : MonoBehaviour
@@ -6,14 +7,8 @@ public class DebugCameraController : MonoBehaviour
     [SerializeField] private float FlyingSpeed = 5f;
     [SerializeField] private float MouseSensitivity = 10f;
 
-    private Vector3 lastMousePos;
     private float angX = 0f;
     private float angY = 0f;
-
-    private void Start()
-    {
-        lastMousePos = Input.mousePosition;
-    }
 
     private void Update()
     {
@@ -25,12 +20,12 @@ public class DebugCameraController : MonoBehaviour
     {
         //read input
         Vector3 input = Vector3.zero;
-        if (Input.GetKey(KeyCode.A)) input += Vector3.left;
-        if (Input.GetKey(KeyCode.D)) input += Vector3.right;
-        if (Input.GetKey(KeyCode.S)) input += Vector3.back;
-        if (Input.GetKey(KeyCode.W)) input += Vector3.forward;
-        if (Input.GetKey(KeyCode.LeftShift)) input += Vector3.down;
-        if (Input.GetKey(KeyCode.Space)) input += Vector3.up;
+        if (Keyboard.current.aKey.isPressed) input += Vector3.left;
+        if (Keyboard.current.dKey.isPressed) input += Vector3.right;
+        if (Keyboard.current.sKey.isPressed) input += Vector3.back;
+        if (Keyboard.current.wKey.isPressed) input += Vector3.forward;
+        if (Keyboard.current.shiftKey.isPressed) input += Vector3.down;
+        if (Keyboard.current.spaceKey.isPressed) input += Vector3.up;
 
         //normalize
         if (input.sqrMagnitude > .1f)
@@ -39,7 +34,7 @@ public class DebugCameraController : MonoBehaviour
         //rotate
         input = Quaternion.AngleAxis(angX, Vector3.up) * input;
 
-        if (Input.GetKey(KeyCode.LeftControl))
+        if (Keyboard.current.ctrlKey.isPressed)
             input *= 3;
 
         //move
@@ -49,10 +44,7 @@ public class DebugCameraController : MonoBehaviour
     void TurnCamera()
     {
         //read input
-        Vector3 input = Vector3.zero;
-        if (Input.GetMouseButton(0))//is left button down?
-            input = Input.mousePosition - lastMousePos;
-        lastMousePos = Input.mousePosition;
+        Vector2 input = Mouse.current.leftButton.isPressed ? Mouse.current.delta.ReadValue() : Vector2.zero;
 
         //update angles
         angX -= input.x * MouseSensitivity * Time.deltaTime;

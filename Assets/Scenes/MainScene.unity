@@ -552,7 +552,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   FlyingSpeed: 40
-  MouseSensitivity: 7
+  MouseSensitivity: 15
 --- !u!114 &643116205
 MonoBehaviour:
   m_ObjectHideFlags: 0
