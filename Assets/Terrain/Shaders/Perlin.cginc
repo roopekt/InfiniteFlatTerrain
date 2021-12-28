@@ -21,7 +21,7 @@ float Fade(float x/*0 - 1*/) {
 }
 
 float CornerValue2D(int2 cornerOfset, int2 posi, float2 dpos, int seed) {//2D
-	float random = (float)(RandomInt(posi + cornerOfset, seed) & 2047);//0 - 2047
+	float random = (float)(RandomInt(posi + cornerOfset, seed) & 2047);//range 0 - 2047
 	static const float mul = (1.0 / 2047.0) * (2.0 * PI);
 	float angle = random * mul;
 	float2 gradient = float2(cos(angle), sin(angle));

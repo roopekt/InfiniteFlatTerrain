@@ -22,23 +22,35 @@ float uTerrain_coveragePercent;
 bool uTerrain_writeTargetSelect;//specifies, which part of bTerrain_VertexTexturePair to write to
 
 
-float3 GetVertexPos(uint2 uv)
+float GetRadius(float uv_y)
 {
-	float angleX = uv.x * (TAU / (float)uTerrain_littleSectorCount);
-
-	float angleY = uv.y * (PI / 2.0 / (float)uTerrain_radius * uTerrain_coveragePercent);
-	float radius = uTerrain_targetPos.y * tan(angleY);
-
-	return float3(
-			radius * cos(angleX) + uTerrain_targetPos.x,
-			0,
-			radius * sin(angleX) + uTerrain_targetPos.z
-		);
+	float angle = uv_y * (PI / 2.0 / (float)uTerrain_radius * uTerrain_coveragePercent);
+	return uTerrain_targetPos.y * tan(angle);
 }
 
-float GetHeight(float2 pos)
+//get vertex position. y will be 0
+float3 GetVertexPos(uint2 uv, out float angle, out float radius)
 {
-	return LayeredPerlin2D(pos, 4, 1. / 100.) * 80 + 2 * 800;
+	angle = uv.x * (TAU / (float)uTerrain_littleSectorCount);
+	radius = GetRadius(uv.y);
+
+	return float3(
+			radius * cos(angle) + uTerrain_targetPos.x,
+			0,
+			radius * sin(angle) + uTerrain_targetPos.z
+		);
+}
+float3 GetVertexPos(uint2 uv) {
+	float ang, r;
+	return GetVertexPos(uv, ang, r);
+}
+
+float GetHeight(float2 pos, float maxFreq)
+{
+	float minorFreq = 1. / 100.;
+	uint octaveCount = (uint)log2(maxFreq / minorFreq) + 1;
+
+	return LayeredPerlin2D(pos, octaveCount, minorFreq) * 80 + 2 * 800;
 }
 
 [numthreads(8,8,1)]
@@ -48,8 +60,14 @@ void RenderTextures (uint3 uv : SV_DispatchThreadID)
 	if (uv.x > uTerrain_littleSectorCount || uv.y > uTerrain_radius)
 		return;
 
-	float3 vertexPos = GetVertexPos(uv.xy);
-	vertexPos += float3(0, GetHeight(vertexPos.xz), 0);
+	//get vertex position (y = 0 for now)
+	float vAngle, vRadius;
+	float3 vertexPos = GetVertexPos(uv.xy, vAngle, vRadius);
+
+	//calculate vertexPos.y
+	float dr = GetRadius(uv.y + 1) - vRadius;//square width at vertexPos
+	float maxFrequency = 1 / dr / 5;
+	vertexPos.y = GetHeight(vertexPos.xz, maxFrequency);
 
 	//uv += uint3(uTerrain_writeTargetSelect * uTerrain_littleSectorCount, 0, 0);//select target
 	bTerrain_VertexTexturePair[uv.xy] = float4(vertexPos, 0);
