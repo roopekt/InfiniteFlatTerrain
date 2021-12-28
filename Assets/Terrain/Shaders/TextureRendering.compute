@@ -61,11 +61,6 @@ float3 GetNormal(uint2 uv)
 	float3 ddx = p00 - p10;
 	float3 ddy = p00 - p01;
 
-	//At the centre there are multiple vertices at the same place.
-	//This makes normals work with them.
-	//if ddx == 0: ddx = 'horizontal, perpendicular to ddy'
-	ddx += (dot(ddx, ddx) < 1e-6) * cross(float3(0, -1, 0), ddy);
-
 	return normalize(cross(ddx, ddy));
 }
 
