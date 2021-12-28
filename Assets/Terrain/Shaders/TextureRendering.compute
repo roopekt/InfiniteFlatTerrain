@@ -21,6 +21,7 @@ uint uTerrain_radius;
 float uTerrain_coveragePercent;
 bool uTerrain_writeTargetSelect;//specifies, which part of bTerrain_VertexTexturePair to write to
 
+
 float3 GetVertexPos(uint2 uv)
 {
 	float angleX = uv.x * (TAU / (float)uTerrain_littleSectorCount);
@@ -34,6 +35,26 @@ float3 GetVertexPos(uint2 uv)
 			radius * sin(angleX) + uTerrain_targetPos.z
 		);
 }
+
+float GetHeight(float2 pos)
+{
+	return LayeredPerlin2D(pos, 4, 1. / 100.) * 80 + 2 * 800;
+}
+
+[numthreads(8,8,1)]
+void RenderTextures (uint3 uv : SV_DispatchThreadID)
+{
+	//discard if out of bounds
+	if (uv.x > uTerrain_littleSectorCount || uv.y > uTerrain_radius)
+		return;
+
+	float3 vertexPos = GetVertexPos(uv.xy);
+	vertexPos += float3(0, GetHeight(vertexPos.xz), 0);
+
+	//uv += uint3(uTerrain_writeTargetSelect * uTerrain_littleSectorCount, 0, 0);//select target
+	bTerrain_VertexTexturePair[uv.xy] = float4(vertexPos, 0);
+}
+
 
 float3 GetNormal(uint2 uv)
 {
@@ -62,25 +83,6 @@ float3 GetNormal(uint2 uv)
 	float3 ddy = p00 - p01;
 
 	return normalize(cross(ddx, ddy));
-}
-
-float GetHeight(float2 pos)
-{
-	return LayeredPerlin2D(pos, 4, 1. / 100.) * 80 + 2 * 800;
-}
-
-[numthreads(8,8,1)]
-void RenderTextures (uint3 uv : SV_DispatchThreadID)
-{
-	//discard if out of bounds
-	if (uv.x > uTerrain_littleSectorCount || uv.y > uTerrain_radius)
-		return;
-
-	float3 vertexPos = GetVertexPos(uv.xy);
-	vertexPos += float3(0, GetHeight(vertexPos.xz), 0);
-
-	//uv += uint3(uTerrain_writeTargetSelect * uTerrain_littleSectorCount, 0, 0);//select target
-	bTerrain_VertexTexturePair[uv.xy] = float4(vertexPos, 0);
 }
 
 [numthreads(8, 8, 1)]
