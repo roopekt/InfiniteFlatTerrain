@@ -49,7 +49,8 @@ float3 GetVertexPos(uint2 uv) {
 
 float GetHeight(float2 pos, float maxFreq)
 {
-	uint octaveCount = (uint)log2(maxFreq / uTerrainNoise_minorFreq) + 1;
+	float octaveCount = log2(maxFreq / uTerrainNoise_minorFreq) + 1;
+	octaveCount = max(1.001, octaveCount);
 
 	return LayeredPerlin2D(pos, octaveCount, uTerrainNoise_minorFreq) * uTerrainNoise_amplitudeMul;
 }

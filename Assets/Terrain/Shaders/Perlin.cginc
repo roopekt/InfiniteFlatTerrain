@@ -54,18 +54,22 @@ void Perlin2D_float(in float2 pos, out float scalar, int seed = DEFSEED) {
 	scalar = .5 + .5 * Perlin2D(pos, seed);
 }
 
-float LayeredPerlin2D(float2 pos, uint octaveCount, float minorFreq, float persistance = 0.5, int seed = DEFSEED)
+float LayeredPerlin2D(float2 pos, float octaveCount, float minorFreq, float persistance = 0.5, int seed = DEFSEED)
 {
 	float value = 0.0;
 	float freq = minorFreq;
 	float ampl = 1.0;
-	for (uint i = 0; i < octaveCount; ++i)
-	{
-		value += ampl * Perlin2D(freq * pos, seed);
+	float octavesLeft = octaveCount;
 
-		freq *= 2;
+	for (uint i = 0; i < (uint)octaveCount + 1; ++i)
+	{
+		value += ampl * Perlin2D(freq * pos, seed)
+			* min(1., octavesLeft);
+
+		freq *= 2.;
 		ampl *= persistance;
 		seed = HashInt(seed);
+		octavesLeft -= 1.;
 	}
 	return value;
 }
