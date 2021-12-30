@@ -26,7 +26,8 @@ bool uTerrain_writeTargetSelect;//specifies, which part of bTerrain_VertexTextur
 float GetRadius(float uv_y)
 {
 	float angle = uv_y * (PI / 2.0 / (float)uTerrain_radius * uTerrain_coveragePercent);
-	return uTerrain_targetPos.y * tan(angle);
+	float maxAmplitude_half = 2 * uTerrainNoise_amplitudeMul;
+	return (uTerrain_targetPos.y + maxAmplitude_half) * tan(angle);
 }
 
 //get vertex position. y will be 0
