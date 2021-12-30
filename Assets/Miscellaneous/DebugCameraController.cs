@@ -6,6 +6,7 @@ public class DebugCameraController : MonoBehaviour
 {
     [SerializeField] private float FlyingSpeed = 5f;
     [SerializeField] private float MouseSensitivity = 10f;
+    [SerializeField] private float ScrollSensitivity = .3f;
 
     private float angX = 0f;
     private float angY = 0f;
@@ -14,6 +15,7 @@ public class DebugCameraController : MonoBehaviour
     {
         Fly();
         TurnCamera();
+        AdjustSpeed();
     }
 
     void Fly()
@@ -34,9 +36,6 @@ public class DebugCameraController : MonoBehaviour
         //rotate
         input = Quaternion.AngleAxis(angX, Vector3.up) * input;
 
-        if (Keyboard.current.ctrlKey.isPressed)
-            input *= 3;
-
         //move
         transform.position += input * FlyingSpeed * Time.deltaTime;
     }
@@ -44,14 +43,24 @@ public class DebugCameraController : MonoBehaviour
     void TurnCamera()
     {
         //read input
-        Vector2 input = Mouse.current.leftButton.isPressed ? Mouse.current.delta.ReadValue() : Vector2.zero;
+        Vector2 delta = Mouse.current.leftButton.isPressed ? Mouse.current.delta.ReadValue() : Vector2.zero;
 
         //update angles
-        angX -= input.x * MouseSensitivity * Time.deltaTime;
-        angY += input.y * MouseSensitivity * Time.deltaTime;
+        angX -= delta.x * MouseSensitivity * Time.deltaTime;
+        angY += delta.y * MouseSensitivity * Time.deltaTime;
         angY = Mathf.Clamp(angY, -90f, 90f);
 
         //update transform with new angles
         transform.rotation = Quaternion.AngleAxis(angX, Vector3.up) * Quaternion.AngleAxis(angY, Vector3.right);
+    }
+
+    void AdjustSpeed()
+    {
+        float scroll = Mouse.current.scroll.ReadValue().y;
+
+        float speedUpPerSecond = Mathf.Pow(2f, scroll * ScrollSensitivity);
+        float speedUp = Mathf.Pow(speedUpPerSecond, Time.deltaTime);//speedUp ^ (1 / deltaTime) == speedUpPerSecond
+
+        FlyingSpeed *= speedUp;
     }
 }

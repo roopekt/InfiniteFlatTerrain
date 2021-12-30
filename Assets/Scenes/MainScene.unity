@@ -419,7 +419,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 643116199}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1600, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -553,6 +553,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   FlyingSpeed: 40
   MouseSensitivity: 15
+  ScrollSensitivity: 0.3
 --- !u!114 &643116205
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -709,3 +710,7 @@ MonoBehaviour:
   CoveragePercent: 99.8
   SectorPrefab: {fileID: 6361473289687248720, guid: 3e57321c1e276d149bf75c0d868c33ef, type: 3}
   ComputeShaderAsset: {fileID: 7200000, guid: 15a9dcda209a4624dad3954b3383c327, type: 3}
+  NoiseParams:
+    majorWavelength: 100
+    majorAmplitude: 120
+    verticesPerWave: 4
