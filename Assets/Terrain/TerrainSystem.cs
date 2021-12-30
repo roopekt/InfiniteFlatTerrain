@@ -14,6 +14,7 @@ public class TerrainSystem : MonoBehaviour
     [SerializeField] private GameObject SectorPrefab;
     [Tooltip("TextureRendering.compute")]
     [SerializeField] private ComputeShader ComputeShaderAsset;
+    [SerializeField] private NoiseParamBuffer NoiseParams;
 
     private Transform[] SectorPool;//pool of gameobjects with the sector mesh
     private Mesh sectorMesh;
@@ -30,6 +31,28 @@ public class TerrainSystem : MonoBehaviour
     //uniform name ids
     private int uTerrain_targetPos;
     private int uTerrain_writeTargetSelect;
+
+    [System.Serializable]
+    [AutoUniforms.ShaderCodeOutput("Assets/Terrain/Shaders/NoiseParams.cginc", prefix = "uTerrainNoise_")]
+    private class NoiseParamBuffer : AutoUniforms.UniformBuffer
+    {
+        [Tooltip("Wavelength of the biggest wave")]
+        [AutoUniforms.DontUpload] public float majorWavelength = 100f;
+        private float minorFreq { get => 1f / majorWavelength; }
+
+        [Tooltip("Amplitude of the biggest wave")]
+        [AutoUniforms.DontUpload] public float majorAmplitude = 120f;
+        private float amplitudeMul { get => majorAmplitude / 2f; }
+
+        public float verticesPerWave = 4f;
+    }
+
+    private void Start()
+    {
+        NoiseParams.AddUploadTarget_ComputeShader(ComputeShaderAsset);
+        NoiseParams.Init();
+        NoiseParams.UploadAll();
+    }
 
     private void Update()
     {
@@ -112,7 +135,7 @@ public class TerrainSystem : MonoBehaviour
     }
 
     Mesh GetSectorMesh(
-        int radius,//number of "rings of vertices" raround the centre
+        int radius,//number of "rings of vertices" around the centre
         int subsectorCount,//number of internal sectors within this sector
         float angle)//total angle in radians
     {

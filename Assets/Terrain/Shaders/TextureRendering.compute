@@ -1,5 +1,6 @@
 ﻿#include "Constants.cginc"
 #include "Perlin.cginc"
+#include "NoiseParams.cginc"
 
 #pragma kernel RenderTextures
 #pragma kernel RenderNormals
@@ -47,10 +48,9 @@ float3 GetVertexPos(uint2 uv) {
 
 float GetHeight(float2 pos, float maxFreq)
 {
-	float minorFreq = 1. / 100.;
-	uint octaveCount = (uint)log2(maxFreq / minorFreq) + 1;
+	uint octaveCount = (uint)log2(maxFreq / uTerrainNoise_minorFreq) + 1;
 
-	return LayeredPerlin2D(pos, octaveCount, minorFreq) * 80 + 2 * 800;
+	return LayeredPerlin2D(pos, octaveCount, uTerrainNoise_minorFreq) * uTerrainNoise_amplitudeMul;
 }
 
 [numthreads(8,8,1)]
@@ -66,7 +66,7 @@ void RenderTextures (uint3 uv : SV_DispatchThreadID)
 
 	//calculate vertexPos.y
 	float dr = GetRadius(uv.y + 1) - vRadius;//square width at vertexPos
-	float maxFrequency = 1 / dr / 5;
+	float maxFrequency = 1 / dr / uTerrainNoise_verticesPerWave;
 	vertexPos.y = GetHeight(vertexPos.xz, maxFrequency);
 
 	//uv += uint3(uTerrain_writeTargetSelect * uTerrain_littleSectorCount, 0, 0);//select target
