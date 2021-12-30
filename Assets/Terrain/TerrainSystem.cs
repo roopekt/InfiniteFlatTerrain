@@ -11,10 +11,11 @@ public class TerrainSystem : MonoBehaviour
     [Tooltip("If set to 90%, horizon will be 9 degrees below it's correct position.\n10% * 90 degrees = 9 degrees")]
     [Range(0f, 100f)]
     [SerializeField] private float CoveragePercent = 95f;
+    [SerializeField] private NoiseParamBuffer NoiseParams;
+    [SerializeField] private float PlanetRadius = 6_371_000f;
     [SerializeField] private GameObject SectorPrefab;
     [Tooltip("TextureRendering.compute")]
     [SerializeField] private ComputeShader ComputeShaderAsset;
-    [SerializeField] private NoiseParamBuffer NoiseParams;
 
     private Transform[] SectorPool;//pool of gameobjects with the sector mesh
     private Mesh sectorMesh;
@@ -256,6 +257,9 @@ public class TerrainSystem : MonoBehaviour
 
         //coverage percent
         ComputeShaderAsset.SetFloat("uTerrain_coveragePercent", CoveragePercent / 100f);
+
+        //planet radius
+        ComputeShaderAsset.SetFloat("uTerrain_planetRadius", PlanetRadius);
 
         //write target selector
         uTerrain_writeTargetSelect = Shader.PropertyToID("uTerrain_writeTargetSelect");
