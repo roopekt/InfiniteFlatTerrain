@@ -248,10 +248,10 @@ public class TerrainSystem : MonoBehaviour
             uTerrain_targetPos = Shader.PropertyToID("uTerrain_targetPos");
 
             ComputeShaderAsset.SetInt("uTerrain_littleSectorCount", littleSectorCount);
-            Mat.SetFloat("uTerrain_littleSectorCount", littleSectorCount);
 
             ComputeShaderAsset.SetInt("uTerrain_radius", radius);
-            Mat.SetFloat("uTerrain_radius", radius);
+
+            Mat.SetVector("uTerrain_textureSize", new Vector2(vertexTextureDesc.width, vertexTextureDesc.height));
 
             ComputeShaderAsset.SetFloat("uTerrain_coveragePercent", CoveragePercent / 100f);
 
