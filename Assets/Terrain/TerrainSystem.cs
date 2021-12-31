@@ -25,7 +25,7 @@ public class TerrainSystem : MonoBehaviour
     private int kernelId_renderNormals;
     private RenderTexture vertexTexture;
     private RenderTexture normalTexture;
-    //private bool writeTargetSelect = false;
+    private uint writeTargetSelect = 0;
     private Vector3Int dispatch_threadGroupCounts;
 
     //uniform name ids
@@ -219,46 +219,43 @@ public class TerrainSystem : MonoBehaviour
         kernelId_renderNormals = ComputeShaderAsset.FindKernel("RenderNormals");
 
         #region setup textures
-        //create vertex texture
-        var vertexTextureDesc = new RenderTextureDescriptor(2 * (littleSectorCount + 1), radius + 1, RenderTextureFormat.ARGBFloat, 0, 1);
-        vertexTextureDesc.enableRandomWrite = true;
-        vertexTexture = new RenderTexture(vertexTextureDesc);
-        vertexTexture.Create();
+            const int bufferCount = 3;
 
-        //bind vertex texture
-        string bufferName = "bTerrain_VertexTexturePair";
-        ComputeShaderAsset.SetTexture(kernelId_renderTextures, bufferName, vertexTexture, 0);
-        ComputeShaderAsset.SetTexture(kernelId_renderNormals, bufferName, vertexTexture, 0);
-        Mat.SetTexture(bufferName, vertexTexture);
+            //create vertex texture
+            var vertexTextureDesc = new RenderTextureDescriptor(bufferCount * (littleSectorCount + 1), radius + 1, RenderTextureFormat.ARGBFloat, 0, 1);
+            vertexTextureDesc.enableRandomWrite = true;
+            vertexTexture = new RenderTexture(vertexTextureDesc);
+            vertexTexture.Create();
 
-        //create normal texture
-        var normalTextureDesc = vertexTextureDesc;
-        normalTexture = new RenderTexture(normalTextureDesc);
-        normalTexture.Create();
+            //bind vertex texture
+            string bufferName = "bTerrain_VertexTexturePair";
+            ComputeShaderAsset.SetTexture(kernelId_renderTextures, bufferName, vertexTexture, 0);
+            ComputeShaderAsset.SetTexture(kernelId_renderNormals, bufferName, vertexTexture, 0);
+            Mat.SetTexture(bufferName, vertexTexture);
 
-        //bind normal texture
-        bufferName = "bTerrain_NormalTexturePair";
-        ComputeShaderAsset.SetTexture(kernelId_renderNormals, bufferName, normalTexture, 0);
-        Mat.SetTexture(bufferName, normalTexture);
+            //create normal texture
+            var normalTextureDesc = vertexTextureDesc;
+            normalTexture = new RenderTexture(normalTextureDesc);
+            normalTexture.Create();
+
+            //bind normal texture
+            bufferName = "bTerrain_NormalTexturePair";
+            ComputeShaderAsset.SetTexture(kernelId_renderNormals, bufferName, normalTexture, 0);
+            Mat.SetTexture(bufferName, normalTexture);
         #endregion
 
         #region setup uniforms
-        //target pos
-        uTerrain_targetPos = Shader.PropertyToID("uTerrain_targetPos");
+            uTerrain_targetPos = Shader.PropertyToID("uTerrain_targetPos");
 
-        //little sector count
-        ComputeShaderAsset.SetInt("uTerrain_littleSectorCount", littleSectorCount);
-        Mat.SetFloat("uTerrain_littleSectorCount", littleSectorCount);
+            ComputeShaderAsset.SetInt("uTerrain_littleSectorCount", littleSectorCount);
+            Mat.SetFloat("uTerrain_littleSectorCount", littleSectorCount);
 
-        //radius
-        ComputeShaderAsset.SetInt("uTerrain_radius", radius);
-        Mat.SetFloat("uTerrain_radius", radius);
+            ComputeShaderAsset.SetInt("uTerrain_radius", radius);
+            Mat.SetFloat("uTerrain_radius", radius);
 
-        //coverage percent
-        ComputeShaderAsset.SetFloat("uTerrain_coveragePercent", CoveragePercent / 100f);
+            ComputeShaderAsset.SetFloat("uTerrain_coveragePercent", CoveragePercent / 100f);
 
-        //write target selector
-        uTerrain_writeTargetSelect = Shader.PropertyToID("uTerrain_writeTargetSelect");
+            uTerrain_writeTargetSelect = Shader.PropertyToID("uTerrain_writeTargetSelect");
         #endregion
 
         //calculate number of thread groups along each axis for dispathing the RenderTextures kernel
@@ -276,7 +273,7 @@ public class TerrainSystem : MonoBehaviour
         //set uniforms
         Vector3 pos = Target.position;
         ComputeShaderAsset.SetFloats(uTerrain_targetPos, pos.x, pos.y, pos.z);
-        ComputeShaderAsset.SetBool(uTerrain_writeTargetSelect, false);
+        ComputeShaderAsset.SetInt(uTerrain_writeTargetSelect, 0);
 
         //dispatch
         var tgCounts = dispatch_threadGroupCounts;

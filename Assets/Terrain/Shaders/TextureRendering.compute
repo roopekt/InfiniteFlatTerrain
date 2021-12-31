@@ -7,12 +7,12 @@
 #pragma kernel RenderTextures
 #pragma kernel RenderNormals
 
-// two textures side by side:
+// 3 textures side by side:
 // 
 // y/r
-// ^ ┌───┬───┐
-// | │ 0 │ 1 │
-// | └───┴───┘
+// ^ ┌───┬───┬───┐
+// | │ 0 │ 1 │ 2 │
+// | └───┴───┴───┘
 //   --> x/ang
 RWTexture2D<float4> bTerrain_VertexTexturePair;
 RWTexture2D<float4> bTerrain_NormalTexturePair;
@@ -22,7 +22,7 @@ float3 uTerrain_targetPos;
 uint uTerrain_littleSectorCount;
 uint uTerrain_radius;
 float uTerrain_coveragePercent;
-bool uTerrain_writeTargetSelect;//specifies, which part of bTerrain_VertexTexturePair to write to
+uint uTerrain_writeTargetSelect;//specifies, which part of bTerrain_VertexTexturePair to write to
 
 
 float GetRadius(float uv_y)
