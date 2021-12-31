@@ -12,7 +12,6 @@ public class TerrainSystem : MonoBehaviour
     [Range(0f, 100f)]
     [SerializeField] private float CoveragePercent = 95f;
     [SerializeField] private NoiseParamBuffer NoiseParams;
-    [SerializeField] private float PlanetRadius = 6_371_000f;
     [SerializeField] private GameObject SectorPrefab;
     [Tooltip("TextureRendering.compute")]
     [SerializeField] private ComputeShader ComputeShaderAsset;
@@ -257,9 +256,6 @@ public class TerrainSystem : MonoBehaviour
 
         //coverage percent
         ComputeShaderAsset.SetFloat("uTerrain_coveragePercent", CoveragePercent / 100f);
-
-        //planet radius
-        ComputeShaderAsset.SetFloat("uTerrain_planetRadius", PlanetRadius);
 
         //write target selector
         uTerrain_writeTargetSelect = Shader.PropertyToID("uTerrain_writeTargetSelect");

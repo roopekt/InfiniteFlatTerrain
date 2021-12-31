@@ -23,7 +23,6 @@ uint uTerrain_littleSectorCount;
 uint uTerrain_radius;
 float uTerrain_coveragePercent;
 bool uTerrain_writeTargetSelect;//specifies, which part of bTerrain_VertexTexturePair to write to
-float uTerrain_planetRadius;
 
 
 float GetRadius(float uv_y)
@@ -58,13 +57,6 @@ float GetHeight(float2 pos, float maxFreq)
 	return LayeredPerlin2D(pos, octaveCount, uTerrainNoise_minorFreq) * uTerrainNoise_amplitudeMul;
 }
 
-//used to make terrain spherical. returns vertice's y ofset based on it's horizontal distance from targetPos
-float GetSphereOfset(float horDist)
-{
-	float planetR = uTerrain_planetRadius;
-	return sqrt(planetR * planetR - horDist * horDist) - planetR;
-}
-
 [numthreads(8,8,1)]
 void RenderTextures (uint3 uv : SV_DispatchThreadID)
 {
@@ -81,11 +73,6 @@ void RenderTextures (uint3 uv : SV_DispatchThreadID)
 	float maxFrequency = 1 / dr / uTerrainNoise_verticesPerWave;
 	vertexPos.y = GetHeight(vertexPos.xz, maxFrequency);
 	
-	//make terrain spherical
-	#ifdef SPHERICAL
-		vertexPos.y += GetSphereOfset(vRadius);
-	#endif
-
 	//uv += uint3(uTerrain_writeTargetSelect * uTerrain_littleSectorCount, 0, 0);//select target
 	bTerrain_VertexTexturePair[uv.xy] = float4(vertexPos, 0);
 }
