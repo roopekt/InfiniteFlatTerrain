@@ -467,7 +467,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 643116199}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 100, z: 0}
+  m_LocalPosition: {x: 0, y: 50, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -661,9 +661,17 @@ MonoBehaviour:
   SquareWidth: 4
   SubsectorCount: 6
   CoveragePercent: 99.8
-  NoiseParams:
-    majorWavelength: 7000
-    majorAmplitude: 5000
+  HeightMapParams:
+    majorWavelength: 200
+    majorAmplitude: 20
     verticesPerWave: 4
+  MountainHeightMapParams:
+    majorWavelength: 100
+    majorAmplitude: 500
+    verticesPerWave: 4
+  MountainMaskParams:
+    majorWavelength: 500
+    exponent: 4.5
+    verticesPerWave: 20
   SectorPrefab: {fileID: 6361473289687248720, guid: 3e57321c1e276d149bf75c0d868c33ef, type: 3}
   ComputeShaderAsset: {fileID: 7200000, guid: 15a9dcda209a4624dad3954b3383c327, type: 3}

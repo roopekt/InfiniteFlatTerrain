@@ -12,6 +12,8 @@ public class TerrainSystem : MonoBehaviour
     [Range(0f, 100f)]
     [SerializeField] private float CoveragePercent = 95f;
     [SerializeField] private NoiseParams HeightMapParams;
+    [SerializeField] private NoiseParams MountainHeightMapParams;
+    [SerializeField] private MountainMaskNoiseParams MountainMaskParams;
     [SerializeField] private GameObject SectorPrefab;
     [Tooltip("TextureRendering.compute")]
     [SerializeField] private ComputeShader ComputeShaderAsset;
@@ -40,6 +42,18 @@ public class TerrainSystem : MonoBehaviour
 
         [Tooltip("Amplitude of the biggest wave")]
         public float majorAmplitude = 120f;
+
+        public float verticesPerWave = 4f;
+    }
+
+    [System.Serializable]
+    private class MountainMaskNoiseParams
+    {
+        [Tooltip("Wavelength of the biggest wave")]
+        public float majorWavelength = 100f;
+
+        [Tooltip("Higher values mean less mountains")]
+        public float exponent = 5f;
 
         public float verticesPerWave = 4f;
     }
@@ -236,20 +250,24 @@ public class TerrainSystem : MonoBehaviour
 
         #region setup uniforms
             uTerrain_targetPos = Shader.PropertyToID("uTerrain_targetPos");
-
-            ComputeShaderAsset.SetInt("uTerrain_littleSectorCount", littleSectorCount);
-
-            ComputeShaderAsset.SetInt("uTerrain_radius", radius);
-
-            Mat.SetVector("uTerrain_textureSize", new Vector2(vertexTextureDesc.width, vertexTextureDesc.height));
-
-            ComputeShaderAsset.SetFloat("uTerrain_coveragePercent", CoveragePercent / 100f);
-
             uTerrain_writeTargetSelect = Shader.PropertyToID("uTerrain_writeTargetSelect");
 
-        ComputeShaderAsset.SetFloat("uTerrainHeightMap_amplitudeMul", HeightMapParams.majorAmplitude / 2f);
-        ComputeShaderAsset.SetFloat("uTerrainHeightMap_minorFreq", 1f / HeightMapParams.majorWavelength);
-        ComputeShaderAsset.SetFloat("uTerrainHeightMap_verticesPerWave", HeightMapParams.verticesPerWave);
+            ComputeShaderAsset.SetInt("uTerrain_littleSectorCount", littleSectorCount);
+            ComputeShaderAsset.SetInt("uTerrain_radius", radius);
+            Mat.SetVector("uTerrain_textureSize", new Vector2(vertexTextureDesc.width, vertexTextureDesc.height));
+            ComputeShaderAsset.SetFloat("uTerrain_coveragePercent", CoveragePercent / 100f);
+
+            ComputeShaderAsset.SetFloat("uTerrainHeightMap_amplitudeMul", HeightMapParams.majorAmplitude / 2f);
+            ComputeShaderAsset.SetFloat("uTerrainHeightMap_minorFreq", 1f / HeightMapParams.majorWavelength);
+            ComputeShaderAsset.SetFloat("uTerrainHeightMap_verticesPerWave", HeightMapParams.verticesPerWave);
+
+            ComputeShaderAsset.SetFloat("uTerrainMountHeightMap_amplitudeMul", MountainHeightMapParams.majorAmplitude / 2f);
+            ComputeShaderAsset.SetFloat("uTerrainMountHeightMap_minorFreq", 1f / MountainHeightMapParams.majorWavelength);
+            ComputeShaderAsset.SetFloat("uTerrainMountHeightMap_verticesPerWave", MountainHeightMapParams.verticesPerWave);
+
+            ComputeShaderAsset.SetFloat("uTerrainMountMask_minorFreq", 1f / MountainMaskParams.majorWavelength);
+            ComputeShaderAsset.SetFloat("uTerrainMountMask_verticesPerWave", MountainMaskParams.verticesPerWave);
+            ComputeShaderAsset.SetFloat("uTerrainMountMask_exponent", MountainMaskParams.exponent);
         #endregion
 
         //calculate number of thread groups along each axis for dispathing the RenderTextures kernel

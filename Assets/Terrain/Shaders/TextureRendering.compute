@@ -23,6 +23,12 @@ uint uTerrain_writeTargetSelect;//specifies, which part of bTerrain_VertexTextur
 float uTerrainHeightMap_amplitudeMul;
 float uTerrainHeightMap_minorFreq;
 float uTerrainHeightMap_verticesPerWave;
+float uTerrainMountHeightMap_amplitudeMul;
+float uTerrainMountHeightMap_minorFreq;
+float uTerrainMountHeightMap_verticesPerWave;
+float uTerrainMountMask_minorFreq;
+float uTerrainMountMask_verticesPerWave;
+float uTerrainMountMask_exponent;
 
 
 float GetRadius(float uv_y)
@@ -39,9 +45,9 @@ float3 GetVertexPos(uint2 uv, out float angle, out float radius)
 	radius = GetRadius(uv.y);
 
 	return float3(
-			radius * cos(angle) + uTerrain_targetPos.x,
-			0,
-			radius * sin(angle) + uTerrain_targetPos.z
+		radius * cos(angle) + uTerrain_targetPos.x,
+		0,
+		radius * sin(angle) + uTerrain_targetPos.z
 		);
 }
 float3 GetVertexPos(uint2 uv) {
@@ -49,12 +55,54 @@ float3 GetVertexPos(uint2 uv) {
 	return GetVertexPos(uv, ang, r);
 }
 
-float GetHeight(float2 pos, float maxFreq)
+float RemapRange(float x, float2 origRange, float2 newRange)
 {
-	float octaveCount = log2(maxFreq / uTerrainHeightMap_minorFreq) + 1;
+	float range0to1 = (x - origRange.x) / (origRange.y - origRange.x);
+	return newRange.x + range0to1 * (newRange.y - newRange.x);
+}
+
+float GetNoise(float2 pos, float maxFreq, float minorFreq, float amplitudeMul, int seed)
+{
+	float octaveCount = log2(maxFreq / minorFreq) + 1;
 	octaveCount = max(1.001, octaveCount);
 
-	return LayeredPerlin2D(pos, octaveCount, uTerrainHeightMap_minorFreq) * uTerrainHeightMap_amplitudeMul;
+	return LayeredPerlin2D(pos, octaveCount, minorFreq, seed) * amplitudeMul;
+}
+
+float GetMaskNoise(float2 pos, float maxFreq, float minorFreq, float exponent, int seed)
+{
+	float noise = GetNoise(pos, maxFreq, minorFreq, 1, seed);
+	noise = RemapRange(noise, float2(-2, 2), float2(0, 1));
+	return pow(noise, exponent);
+}
+
+float GetHeight(float2 pos, float squareWidth)
+{
+	float plateuHeight = GetNoise(
+		pos,
+		squareWidth / uTerrainHeightMap_verticesPerWave,
+		uTerrainHeightMap_minorFreq,
+		uTerrainHeightMap_amplitudeMul,
+		2983
+	);
+
+	float mountainHeight = GetNoise(
+		pos,
+		squareWidth / uTerrainMountHeightMap_verticesPerWave,
+		uTerrainMountHeightMap_minorFreq,
+		uTerrainMountHeightMap_amplitudeMul,
+		9189
+	) + uTerrainMountHeightMap_amplitudeMul;
+
+	float mountainMask = GetMaskNoise(
+		pos,
+		squareWidth / uTerrainMountMask_verticesPerWave,
+		uTerrainMountMask_minorFreq,
+		uTerrainMountMask_exponent,
+		1563
+	);
+
+	return lerp(plateuHeight, mountainHeight, mountainMask);;
 }
 
 [numthreads(8,8,1)]
@@ -70,8 +118,8 @@ void RenderTextures (uint3 uv : SV_DispatchThreadID)
 
 	//calculate vertexPos.y
 	float dr = GetRadius(uv.y + 1) - vRadius;//square width at vertexPos
-	float maxFrequency = 1 / dr / uTerrainHeightMap_verticesPerWave;
-	vertexPos.y = GetHeight(vertexPos.xz, maxFrequency);
+	float squareWidth = 1 / dr;
+	vertexPos.y = GetHeight(vertexPos.xz, squareWidth);
 	
 	//uv += uint3(uTerrain_writeTargetSelect * uTerrain_littleSectorCount, 0, 0);//select target
 	bTerrain_VertexTexturePair[uv.xy] = float4(vertexPos, 0);

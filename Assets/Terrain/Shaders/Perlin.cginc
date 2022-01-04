@@ -30,7 +30,7 @@ float CornerValue2D(int2 cornerOfset, int2 posi, float2 dpos, int seed) {//2D
 	return dot(gradient, toDpos);
 }
 
-float Perlin2D(float2 pos, int seed = DEFSEED)
+float Perlin2D(float2 pos, int seed)
 {
 	int2 posi = (int2)floor(pos);
 
@@ -54,7 +54,7 @@ void Perlin2D_float(in float2 pos, out float scalar, int seed = DEFSEED) {
 	scalar = .5 + .5 * Perlin2D(pos, seed);
 }
 
-float LayeredPerlin2D(float2 pos, float octaveCount, float minorFreq, float persistance = 0.5, int seed = DEFSEED)
+float LayeredPerlin2D(float2 pos, float octaveCount, float minorFreq, int seed, float persistance = 0.5)
 {
 	float value = 0.0;
 	float freq = minorFreq;
