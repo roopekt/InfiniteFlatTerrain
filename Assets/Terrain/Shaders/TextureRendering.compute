@@ -1,8 +1,5 @@
 ﻿#include "Constants.cginc"
 #include "Perlin.cginc"
-#include "NoiseParams.cginc"
-
-#define SPHERICAL
 
 #pragma kernel RenderTextures
 #pragma kernel RenderNormals
@@ -23,12 +20,15 @@ uint uTerrain_littleSectorCount;
 uint uTerrain_radius;
 float uTerrain_coveragePercent;
 uint uTerrain_writeTargetSelect;//specifies, which part of bTerrain_VertexTexturePair to write to
+float uTerrainHeightMap_amplitudeMul;
+float uTerrainHeightMap_minorFreq;
+float uTerrainHeightMap_verticesPerWave;
 
 
 float GetRadius(float uv_y)
 {
 	float angle = uv_y * (PI / 2.0 / (float)uTerrain_radius * uTerrain_coveragePercent);
-	float maxAmplitude_half = 2 * uTerrainNoise_amplitudeMul;
+	float maxAmplitude_half = 2 * uTerrainHeightMap_amplitudeMul;
 	return (uTerrain_targetPos.y + maxAmplitude_half) * tan(angle);
 }
 
@@ -51,10 +51,10 @@ float3 GetVertexPos(uint2 uv) {
 
 float GetHeight(float2 pos, float maxFreq)
 {
-	float octaveCount = log2(maxFreq / uTerrainNoise_minorFreq) + 1;
+	float octaveCount = log2(maxFreq / uTerrainHeightMap_minorFreq) + 1;
 	octaveCount = max(1.001, octaveCount);
 
-	return LayeredPerlin2D(pos, octaveCount, uTerrainNoise_minorFreq) * uTerrainNoise_amplitudeMul;
+	return LayeredPerlin2D(pos, octaveCount, uTerrainHeightMap_minorFreq) * uTerrainHeightMap_amplitudeMul;
 }
 
 [numthreads(8,8,1)]
@@ -70,7 +70,7 @@ void RenderTextures (uint3 uv : SV_DispatchThreadID)
 
 	//calculate vertexPos.y
 	float dr = GetRadius(uv.y + 1) - vRadius;//square width at vertexPos
-	float maxFrequency = 1 / dr / uTerrainNoise_verticesPerWave;
+	float maxFrequency = 1 / dr / uTerrainHeightMap_verticesPerWave;
 	vertexPos.y = GetHeight(vertexPos.xz, maxFrequency);
 	
 	//uv += uint3(uTerrain_writeTargetSelect * uTerrain_littleSectorCount, 0, 0);//select target

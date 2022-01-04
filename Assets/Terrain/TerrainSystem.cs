@@ -11,7 +11,7 @@ public class TerrainSystem : MonoBehaviour
     [Tooltip("If set to 90%, horizon will be 9 degrees below it's correct position.\n10% * 90 degrees = 9 degrees")]
     [Range(0f, 100f)]
     [SerializeField] private float CoveragePercent = 95f;
-    [SerializeField] private NoiseParamBuffer NoiseParams;
+    [SerializeField] private NoiseParams HeightMapParams;
     [SerializeField] private GameObject SectorPrefab;
     [Tooltip("TextureRendering.compute")]
     [SerializeField] private ComputeShader ComputeShaderAsset;
@@ -33,25 +33,15 @@ public class TerrainSystem : MonoBehaviour
     private int uTerrain_writeTargetSelect;
 
     [System.Serializable]
-    [AutoUniforms.ShaderCodeOutput("Assets/Terrain/Shaders/NoiseParams.cginc", prefix = "uTerrainNoise_")]
-    private class NoiseParamBuffer : AutoUniforms.UniformBuffer
+    private class NoiseParams
     {
         [Tooltip("Wavelength of the biggest wave")]
-        [AutoUniforms.DontUpload] public float majorWavelength = 100f;
-        private float minorFreq { get => 1f / majorWavelength; }
+        public float majorWavelength = 100f;
 
         [Tooltip("Amplitude of the biggest wave")]
-        [AutoUniforms.DontUpload] public float majorAmplitude = 120f;
-        private float amplitudeMul { get => majorAmplitude / 2f; }
+        public float majorAmplitude = 120f;
 
         public float verticesPerWave = 4f;
-    }
-
-    private void Start()
-    {
-        NoiseParams.AddUploadTarget_ComputeShader(ComputeShaderAsset);
-        NoiseParams.Init();
-        NoiseParams.UploadAll();
     }
 
     private void Update()
@@ -256,6 +246,10 @@ public class TerrainSystem : MonoBehaviour
             ComputeShaderAsset.SetFloat("uTerrain_coveragePercent", CoveragePercent / 100f);
 
             uTerrain_writeTargetSelect = Shader.PropertyToID("uTerrain_writeTargetSelect");
+
+        ComputeShaderAsset.SetFloat("uTerrainHeightMap_amplitudeMul", HeightMapParams.majorAmplitude / 2f);
+        ComputeShaderAsset.SetFloat("uTerrainHeightMap_minorFreq", 1f / HeightMapParams.majorWavelength);
+        ComputeShaderAsset.SetFloat("uTerrainHeightMap_verticesPerWave", HeightMapParams.verticesPerWave);
         #endregion
 
         //calculate number of thread groups along each axis for dispathing the RenderTextures kernel
