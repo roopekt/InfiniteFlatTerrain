@@ -137,7 +137,9 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
+    - Vector1_56105b9af55a42668a387cf1196cca53: 32.9
     - Vector1_9cf49ce89e1042bf918cf0368b10c075: 0.1
+    - Vector1_fe597398da044e9892c3d5a09e525c98: 49.1
     - _AORemapMax: 1
     - _AORemapMin: 0
     - _ATDistance: 1
@@ -255,6 +257,7 @@ Material:
     m_Colors:
     - Color_750640bc83cb469ea24ac8b638032bf5: {r: 0.29245278, g: 0.29245278, b: 0.29245278, a: 1}
     - Color_d9c7e780620747ada1d182f878f2dd09: {r: 0.19069901, g: 0.735849, b: 0.10065857, a: 1}
+    - Color_ddbefcad61d642c2a0ccd2e466ef2aa0: {r: 1, g: 1, b: 1, a: 1}
     - Vector2_6416f5f61412470dac20d53254c5273e: {r: 0.85, g: 1, b: 0, a: 0}
     - _BaseColor: {r: 0.17086382, g: 0.745283, b: 0, a: 1}
     - _BaseColorMap_MipInfo: {r: 0, g: 0, b: 0, a: 0}

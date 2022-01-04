@@ -78,7 +78,7 @@ float GetMaskNoise(float2 pos, float maxFreq, float minorFreq, float exponent, i
 
 float GetHeight(float2 pos, float squareWidth)
 {
-	float plateuHeight = GetNoise(
+	float plateauHeight = GetNoise(
 		pos,
 		squareWidth / uTerrainHeightMap_verticesPerWave,
 		uTerrainHeightMap_minorFreq,
@@ -102,7 +102,7 @@ float GetHeight(float2 pos, float squareWidth)
 		1563
 	);
 
-	return lerp(plateuHeight, mountainHeight, mountainMask);;
+	return lerp(plateauHeight, mountainHeight, mountainMask);;
 }
 
 [numthreads(8,8,1)]

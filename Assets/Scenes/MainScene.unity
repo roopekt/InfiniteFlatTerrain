@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 4741.669, g: 5640.332, b: 6668.836, a: 1}
+  m_IndirectSpecularColor: {r: 4744.0947, g: 5642.6035, b: 6670.7344, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -658,7 +658,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Target: {fileID: 643116202}
-  SquareWidth: 4
+  SquareWidth: 2
   SubsectorCount: 6
   CoveragePercent: 99.8
   HeightMapParams:
@@ -672,6 +672,6 @@ MonoBehaviour:
   MountainMaskParams:
     majorWavelength: 500
     exponent: 4.5
-    verticesPerWave: 20
+    verticesPerWave: 4
   SectorPrefab: {fileID: 6361473289687248720, guid: 3e57321c1e276d149bf75c0d868c33ef, type: 3}
   ComputeShaderAsset: {fileID: 7200000, guid: 15a9dcda209a4624dad3954b3383c327, type: 3}
