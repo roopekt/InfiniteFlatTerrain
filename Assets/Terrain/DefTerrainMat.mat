@@ -253,7 +253,9 @@ Material:
     - uTerrain_littleSectorCount: 996
     - uTerrain_radius: 243
     m_Colors:
+    - Color_750640bc83cb469ea24ac8b638032bf5: {r: 0.29245278, g: 0.29245278, b: 0.29245278, a: 1}
     - Color_d9c7e780620747ada1d182f878f2dd09: {r: 0.19069901, g: 0.735849, b: 0.10065857, a: 1}
+    - Vector2_6416f5f61412470dac20d53254c5273e: {r: 0.85, g: 1, b: 0, a: 0}
     - _BaseColor: {r: 0.17086382, g: 0.745283, b: 0, a: 1}
     - _BaseColorMap_MipInfo: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 0.17086378, g: 0.745283, b: 0, a: 1}

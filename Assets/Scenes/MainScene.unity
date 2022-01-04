@@ -667,7 +667,7 @@ MonoBehaviour:
     verticesPerWave: 4
   MountainHeightMapParams:
     majorWavelength: 100
-    majorAmplitude: 500
+    majorAmplitude: 800
     verticesPerWave: 4
   MountainMaskParams:
     majorWavelength: 500
