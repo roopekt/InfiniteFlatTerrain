@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.Assertions;
+using AutoUniforms;
+using System.Runtime.InteropServices;
 
 public class TerrainSystem : MonoBehaviour
 {
@@ -8,13 +10,19 @@ public class TerrainSystem : MonoBehaviour
     [SerializeField] private float SquareWidth = 5f;
     [Tooltip("Number of subsectors in the sector mesh.")]
     [SerializeField] private int SubsectorCount = 5;
-    [Tooltip("If set to 90%, horizon will be 9 degrees below it's correct position.\n10% * 90 degrees = 9 degrees")]
+    [Tooltip("If set to 90, horizon will be 9 degrees below it's correct position.\n10% of 90 degrees = 9 degrees")]
     [Range(0f, 100f)]
     [SerializeField] private float CoveragePercent = 95f;
-    [SerializeField] private NoiseParamBuffer NoiseParams;
+    [SerializeField] private NoiseParamBuffer HeightMapParams = NoiseParamBuffer.GetDefault();
     [SerializeField] private GameObject SectorPrefab;
     [Tooltip("TextureRendering.compute")]
     [SerializeField] private ComputeShader ComputeShaderAsset;
+
+    [SerializeField] private Uniform_Int testVar = new Uniform_Int(314, "u_testVar", noiseParamFile);
+    [SerializeField] private Uniform_Vector2 testVar2 = new Uniform_Vector2(Vector2.right, "u_testVar2", noiseParamFile);
+    private ConstUniformGroupContainer<NoiseParamBuffer> noiseParamBuffers = new ConstUniformGroupContainer<NoiseParamBuffer>(3, 12, "uTerrainNoise_structuredBuffer", noiseParamFile);
+    private const string noiseParamFile = "Assets/Test.cginc";
+
 
     private Transform[] SectorPool;//pool of gameobjects with the sector mesh
     private Mesh sectorMesh;
@@ -32,26 +40,36 @@ public class TerrainSystem : MonoBehaviour
     private int uTerrain_targetPos;
     private int uTerrain_writeTargetSelect;
 
-    [System.Serializable]
-    [AutoUniforms.ShaderCodeOutput("Assets/Terrain/Shaders/NoiseParams.cginc", prefix = "uTerrainNoise_")]
-    private class NoiseParamBuffer : AutoUniforms.UniformBuffer
+    [StructLayout(LayoutKind.Sequential, Pack = 0)]
+    private struct NoiseParamBuffer
     {
         [Tooltip("Wavelength of the biggest wave")]
-        [AutoUniforms.DontUpload] public float majorWavelength = 100f;
-        private float minorFreq { get => 1f / majorWavelength; }
+        public float majorWavelength;
 
         [Tooltip("Amplitude of the biggest wave")]
-        [AutoUniforms.DontUpload] public float majorAmplitude = 120f;
-        private float amplitudeMul { get => majorAmplitude / 2f; }
+        public float majorAmplitude;
 
-        public float verticesPerWave = 4f;
+        public float verticesPerWave;
+
+        public static NoiseParamBuffer GetDefault()
+        {
+            var noiseParamBuffer = new NoiseParamBuffer();
+            noiseParamBuffer.majorWavelength = 100f;
+            noiseParamBuffer.majorAmplitude = 120f;
+            noiseParamBuffer.verticesPerWave = 4;
+            return noiseParamBuffer;
+        }
     }
 
     private void Start()
     {
-        NoiseParams.AddUploadTarget_ComputeShader(ComputeShaderAsset);
-        NoiseParams.Init();
-        NoiseParams.UploadAll();
+        //NoiseParams.AddUploadTarget_ComputeShader(ComputeShaderAsset);
+        //NoiseParams.Init();
+        //NoiseParams.UploadAll();
+
+        testVar.AddUploadTarget(ComputeShaderAsset);
+        testVar.Init();
+        testVar.UploadToAll();
     }
 
     private void Update()
@@ -132,6 +150,7 @@ public class TerrainSystem : MonoBehaviour
         //if not null, release
         vertexTexture?.Release();
         normalTexture?.Release();
+        noiseParamBuffers?.Release();
     }
 
     Mesh GetSectorMesh(

@@ -662,8 +662,12 @@ MonoBehaviour:
   SubsectorCount: 6
   CoveragePercent: 99.8
   NoiseParams:
-    majorWavelength: 7000
-    majorAmplitude: 5000
+    majorWavelength: 100
+    majorAmplitude: 120
     verticesPerWave: 4
   SectorPrefab: {fileID: 6361473289687248720, guid: 3e57321c1e276d149bf75c0d868c33ef, type: 3}
   ComputeShaderAsset: {fileID: 7200000, guid: 15a9dcda209a4624dad3954b3383c327, type: 3}
+  testVar:
+    value: -495
+  testVar2:
+    value: {x: 1, y: 0}
