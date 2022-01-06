@@ -102,7 +102,8 @@ float GetHeight(float2 pos, float squareWidth)
 		1563
 	);
 
-	return lerp(plateauHeight, mountainHeight, mountainMask);;
+	float height = lerp(plateauHeight, mountainHeight, mountainMask);
+	return height;
 }
 
 [numthreads(8,8,1)]
