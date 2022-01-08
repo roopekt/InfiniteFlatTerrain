@@ -394,7 +394,7 @@
     "m_Guid": {
         "m_GuidSerialized": "f8cdd04a-539e-476a-8b91-c59df44c0738"
     },
-    "m_Name": "TextureSize",
+    "m_Name": "TotalTextureSize",
     "m_DefaultReferenceName": "Vector2_5f92014e0d93428d9e2c542925d74577",
     "m_OverrideReferenceName": "",
     "m_GeneratePropertyBlock": true,
@@ -724,7 +724,7 @@
     "m_Type": "UnityEditor.ShaderGraph.Vector2MaterialSlot",
     "m_ObjectId": "f1ee1854ae15477cac428235fb6eccb7",
     "m_Id": 0,
-    "m_DisplayName": "TextureSize",
+    "m_DisplayName": "TotalTextureSize",
     "m_SlotType": 1,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",

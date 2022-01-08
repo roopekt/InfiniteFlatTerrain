@@ -15,6 +15,7 @@ RWTexture2D<float4> bTerrain_VertexTexturePair;
 RWTexture2D<float4> bTerrain_NormalTexturePair;
 
 //parameters
+uint3 uTerrain_uvOfset;
 float3 uTerrain_targetPos;
 uint uTerrain_littleSectorCount;
 uint uTerrain_radius;
@@ -109,6 +110,8 @@ float GetHeight(float2 pos, float squareWidth)
 [numthreads(8,8,1)]
 void RenderTextures (uint3 uv : SV_DispatchThreadID)
 {
+	uv += uTerrain_uvOfset;
+
 	//discard if out of bounds
 	if (uv.x > uTerrain_littleSectorCount || uv.y > uTerrain_radius)
 		return;

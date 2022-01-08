@@ -661,6 +661,7 @@ MonoBehaviour:
   SquareWidth: 4
   SubsectorCount: 6
   CoveragePercent: 99.8
+  FramesPerDispatch: 10
   HeightMapParams:
     majorWavelength: 200
     majorAmplitude: 20
