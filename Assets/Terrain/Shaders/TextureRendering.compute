@@ -11,8 +11,8 @@
 // | │ 0 │ 1 │ 2 │
 // | └───┴───┴───┘
 //   --> x/ang
-RWTexture2D<float4> bTerrain_VertexTexturePair;
-RWTexture2D<float4> bTerrain_NormalTexturePair;
+RWTexture2D<float4> bTerrain_VertexTextureSet;
+RWTexture2D<float4> bTerrain_NormalTextureSet;
 
 //parameters
 uint3 uTerrain_uvOfset;
@@ -20,7 +20,7 @@ float3 uTerrain_targetPos;
 uint uTerrain_littleSectorCount;
 uint uTerrain_radius;
 float uTerrain_coveragePercent;
-uint uTerrain_writeTargetSelect;//specifies, which part of bTerrain_VertexTexturePair to write to
+uint uTerrain_writeTargetSelect;//specifies, which part of bTerrain_VertexTextureSet to write to
 float uTerrainHeightMap_amplitudeMul;
 float uTerrainHeightMap_minorFreq;
 float uTerrainHeightMap_verticesPerWave;
@@ -107,13 +107,22 @@ float GetHeight(float2 pos, float squareWidth)
 	return height;
 }
 
+bool ShouldDiscard(uint3 uv)
+{
+	return (uv.x >= uTerrain_littleSectorCount + 1) || (uv.y >= uTerrain_radius + 1);
+}
+
+uint GetWriteTargetOfset()
+{
+	return uTerrain_writeTargetSelect * (uTerrain_littleSectorCount + 1);
+}
+
 [numthreads(8,8,1)]
 void RenderTextures (uint3 uv : SV_DispatchThreadID)
 {
 	uv += uTerrain_uvOfset;
 
-	//discard if out of bounds
-	if (uv.x > uTerrain_littleSectorCount || uv.y > uTerrain_radius)
+	if (ShouldDiscard(uv))
 		return;
 
 	//get vertex position (y = 0 for now)
@@ -125,12 +134,12 @@ void RenderTextures (uint3 uv : SV_DispatchThreadID)
 	float squareWidth = 1 / dr;
 	vertexPos.y = GetHeight(vertexPos.xz, squareWidth);
 	
-	//uv += uint3(uTerrain_writeTargetSelect * uTerrain_littleSectorCount, 0, 0);//select target
-	bTerrain_VertexTexturePair[uv.xy] = float4(vertexPos, 0);
+	uint2 writeUV = uv.xy + uint2(GetWriteTargetOfset(), 0);
+	bTerrain_VertexTextureSet[writeUV] = float4(vertexPos, 0);
 }
 
 
-float3 GetNormal(uint2 uv)
+float3 GetNormal(uint2 uv, uint2 readOfset)
 {
 	//calculate sample points for numerical partial derivatives
 	float3 p00, p10, p01;
@@ -140,16 +149,16 @@ float3 GetNormal(uint2 uv)
 		uv -= uint2(uv.x >= uTerrain_littleSectorCount, 0);
 		uv -= uint2(0, uv.y >= uTerrain_radius);
 
-		p00 = (float3)bTerrain_VertexTexturePair[uv];
-		p10 = (float3)bTerrain_VertexTexturePair[uv + uint2(1, 0)];
-		p01 = (float3)bTerrain_VertexTexturePair[uv + uint2(0, 1)];
+		p00 = (float3)bTerrain_VertexTextureSet[readOfset + uv];
+		p10 = (float3)bTerrain_VertexTextureSet[readOfset + uv + uint2(1, 0)];
+		p01 = (float3)bTerrain_VertexTextureSet[readOfset + uv + uint2(0, 1)];
 
 	}
 	else//if centre point
 	{
-		p00 = (float3)bTerrain_VertexTexturePair[uint2(0, 0)];
-		p10 = (float3)bTerrain_VertexTexturePair[uint2(uTerrain_littleSectorCount / 4, 1)];
-		p01 = (float3)bTerrain_VertexTexturePair[uint2(0, 1)];
+		p00 = (float3)bTerrain_VertexTextureSet[readOfset + uint2(0, 0)];
+		p10 = (float3)bTerrain_VertexTextureSet[readOfset + uint2(uTerrain_littleSectorCount / 4, 1)];
+		p01 = (float3)bTerrain_VertexTextureSet[readOfset + uint2(0, 1)];
 	}
 	
 	//numerical partial derivatives
@@ -162,5 +171,10 @@ float3 GetNormal(uint2 uv)
 [numthreads(8, 8, 1)]
 void RenderNormals(uint3 uv : SV_DispatchThreadID)
 {
-	bTerrain_NormalTexturePair[uv.xy] = float4(GetNormal(uv.xy), 0);
+	if (ShouldDiscard(uv))
+		return;
+
+	uint2 readWriteOfset = uint2(GetWriteTargetOfset(), 0);
+	float3 normal = GetNormal(uv.xy, readWriteOfset);
+	bTerrain_NormalTextureSet[uv.xy + readWriteOfset] = float4(normal, 0);
 }

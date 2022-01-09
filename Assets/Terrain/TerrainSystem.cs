@@ -23,6 +23,7 @@ public class TerrainSystem : MonoBehaviour
     private Mesh sectorMesh;
     private Vector2Int lastWindowSize = Vector2Int.zero;
     private Dispatcher dispatcher;
+    private Material sectorMaterial;
 
     private RenderTexture vertexTexture;
     private RenderTexture normalTexture;
@@ -58,12 +59,14 @@ public class TerrainSystem : MonoBehaviour
         private readonly Vector3Int renderTextures_threadGroupCounts;
         private readonly Vector3Int renderNormals_threadGroupCounts;
         private readonly ComputeShader computeShader;
+        private readonly Material material;
         private readonly Transform target;
         private readonly Vector2Int textureSize;
 
         private readonly int uTerrain_targetPos;
         private readonly int uTerrain_writeTargetSelect;
         private readonly int uTerrain_uvOfset;
+        private readonly int uTerrain_interpolator;
         private readonly int kernelId_renderTextures;
         private readonly int kernelId_renderNormals;
 
@@ -71,16 +74,18 @@ public class TerrainSystem : MonoBehaviour
         private int frameCounter = 0;
         private int columnsDone;
 
-        public Dispatcher(int framesPerDispatch, ComputeShader computeShader, Transform target, Vector2Int textureSize)
+        public Dispatcher(int framesPerDispatch, ComputeShader computeShader, Material material, Transform target, Vector2Int textureSize)
         {
             this.framesPerDispatch = framesPerDispatch;
             this.computeShader = computeShader;
+            this.material = material;
             this.target = target;
             this.textureSize = textureSize;
 
             uTerrain_targetPos = Shader.PropertyToID("uTerrain_targetPos");
             uTerrain_writeTargetSelect = Shader.PropertyToID("uTerrain_writeTargetSelect");
             uTerrain_uvOfset = Shader.PropertyToID("uTerrain_uvOfset");
+            uTerrain_interpolator = Shader.PropertyToID("uTerrain_interpolator");
             kernelId_renderTextures = computeShader.FindKernel("RenderTextures");
             kernelId_renderNormals = computeShader.FindKernel("RenderNormals");
 
@@ -101,23 +106,26 @@ public class TerrainSystem : MonoBehaviour
         //should be called once every frame
         public void AdvanceFrame()
         {
-            Dispatch(frameCounter);
-
-            frameCounter++;
             if (frameCounter >= framesPerDispatch)
                 InitDispatchCycle();
+
+            Dispatch(frameCounter);
+            UpdateInterpolator();
+
+            frameCounter++;
         }
 
         void InitDispatchCycle()
         {
             frameCounter = 0;
             columnsDone = 0;
-            //writeTargetSelect = (writeTargetSelect + 1) % 3;
+            writeTargetSelect = (writeTargetSelect + 1) % 3;
             
             //set uniforms
             Vector3 pos = target.position;
             computeShader.SetFloats(uTerrain_targetPos, pos.x, pos.y, pos.z);
             computeShader.SetInt(uTerrain_writeTargetSelect, writeTargetSelect);
+            material.SetFloat(uTerrain_writeTargetSelect, (float)writeTargetSelect);
         }
 
         void Dispatch(int frame)
@@ -130,7 +138,7 @@ public class TerrainSystem : MonoBehaviour
 
                 if (groupCounts.x > 0)
                 {
-                    computeShader.SetInts(uTerrain_uvOfset, new int[] { columnsDone * threadGroupSizes.x, 0, 0 });
+                    computeShader.SetInts(uTerrain_uvOfset, columnsDone * threadGroupSizes.x, 0, 0);
                     computeShader.Dispatch(kernelId_renderTextures, groupCounts.x, groupCounts.y, groupCounts.z);
                 }
 
@@ -141,6 +149,12 @@ public class TerrainSystem : MonoBehaviour
                 var groupCounts = renderNormals_threadGroupCounts;
                 computeShader.Dispatch(kernelId_renderNormals, groupCounts.x, groupCounts.y, groupCounts.z);
             }
+        }
+
+        void UpdateInterpolator()
+        {
+            float interpolator = frameCounter / (float)framesPerDispatch;
+            material.SetFloat(uTerrain_interpolator, interpolator);
         }
     }
 
@@ -209,7 +223,8 @@ public class TerrainSystem : MonoBehaviour
         int littleSectorCount = bigSectorCount * SubsectorCount;
         Vector2Int textureSize = new Vector2Int(littleSectorCount + 1, radius + 1);
 
-        dispatcher = new Dispatcher(FramesPerDispatch, ComputeShaderAsset, Target, textureSize);
+        sectorMaterial = SectorPrefab.GetComponent<MeshRenderer>().sharedMaterial;
+        dispatcher = new Dispatcher(FramesPerDispatch, ComputeShaderAsset, sectorMaterial, Target, textureSize);
         SetupShaders(radius, littleSectorCount);
     }
 
@@ -287,7 +302,7 @@ public class TerrainSystem : MonoBehaviour
 
         //prevent rounding errors when sampling texture in vertex shader
         for (int i = 0; i < vertices.Length; i++)
-            vertices[i] = vertices[i] + Vector3.one * .5f;
+            vertices[i] = vertices[i] + new Vector3(.5f, .5f, 0f);
 
         //create Mesh object
         Mesh mesh = new Mesh();
@@ -306,26 +321,25 @@ public class TerrainSystem : MonoBehaviour
         if (!SystemInfo.supportsAsyncGPUReadback)
             Debug.LogError("AsyncGPUReadback not supported.");
 
-        Material Mat = SectorPrefab.GetComponent<MeshRenderer>().sharedMaterial;
-
         //find kernels
         int kernelId_renderTextures = ComputeShaderAsset.FindKernel("RenderTextures");
         int kernelId_renderNormals = ComputeShaderAsset.FindKernel("RenderNormals");
 
         #region setup textures
             const int bufferCount = 3;
+            Vector2Int textureSize = new Vector2Int(littleSectorCount + 1, radius + 1);
 
             //create vertex texture
-            var vertexTextureDesc = new RenderTextureDescriptor(bufferCount * (littleSectorCount + 1), radius + 1, RenderTextureFormat.ARGBFloat, 0, 1);
+            var vertexTextureDesc = new RenderTextureDescriptor(bufferCount * textureSize.x, textureSize.y, RenderTextureFormat.ARGBFloat, 0, 1);
             vertexTextureDesc.enableRandomWrite = true;
             vertexTexture = new RenderTexture(vertexTextureDesc);
             vertexTexture.Create();
 
             //bind vertex texture
-            string bufferName = "bTerrain_VertexTexturePair";
+            string bufferName = "bTerrain_VertexTextureSet";
             ComputeShaderAsset.SetTexture(kernelId_renderTextures, bufferName, vertexTexture, 0);
             ComputeShaderAsset.SetTexture(kernelId_renderNormals, bufferName, vertexTexture, 0);
-            Mat.SetTexture(bufferName, vertexTexture);
+            sectorMaterial.SetTexture(bufferName, vertexTexture);
 
             //create normal texture
             var normalTextureDesc = vertexTextureDesc;
@@ -333,15 +347,15 @@ public class TerrainSystem : MonoBehaviour
             normalTexture.Create();
 
             //bind normal texture
-            bufferName = "bTerrain_NormalTexturePair";
+            bufferName = "bTerrain_NormalTextureSet";
             ComputeShaderAsset.SetTexture(kernelId_renderNormals, bufferName, normalTexture, 0);
-            Mat.SetTexture(bufferName, normalTexture);
+            sectorMaterial.SetTexture(bufferName, normalTexture);
         #endregion
 
         #region setup uniforms
             ComputeShaderAsset.SetInt("uTerrain_littleSectorCount", littleSectorCount);
             ComputeShaderAsset.SetInt("uTerrain_radius", radius);
-            Mat.SetVector("uTerrain_totalTextureSize", new Vector2(vertexTextureDesc.width, vertexTextureDesc.height));
+            sectorMaterial.SetVector("uTerrain_textureSize", (Vector2)textureSize);
             ComputeShaderAsset.SetFloat("uTerrain_coveragePercent", CoveragePercent / 100f);
 
             ComputeShaderAsset.SetFloat("uTerrainHeightMap_amplitudeMul", HeightMapParams.majorAmplitude / 2f);
