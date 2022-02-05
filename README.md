@@ -6,6 +6,8 @@ A real-time height map based terrain renderer with LOD, made using Unity.
 
 ## Installation 
 
+If you only need the binaries, you can get them [here](https://github.com/roopekt/InfiniteFlatTerrain/releases). Otherwise:
+
  1. Clone the repository
 	```shell
 	git clone https://github.com/roopekt/InfiniteFlatTerrain
