@@ -43,6 +43,10 @@ If you only need the binaries, you can get them [here](https://github.com/roopek
 ## License 
 
 This project is distributed under the MIT License. See `LICENSE.txt` for more information.
+
+## Acknowledgments
+
+- The skybox is part of [Free HDR Sky](https://assetstore.unity.com/packages/2d/textures-materials/sky/free-hdr-sky-61217) by ProAssets
+
 <br/><br/>
-<br/><br/>
-![Mountain with a lake behind it](https://github.com/roopekt/InfiniteFlatTerrain/blob/main/ReadmeData/mountain.png)
+![Mountain with a lake behind it](https://github.com/roopekt/InfiniteFlatTerrain/blob/main/ReadmeData/mountain.png) 
