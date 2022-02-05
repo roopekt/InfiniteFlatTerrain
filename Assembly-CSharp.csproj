@@ -53,16 +53,12 @@
     <UnityVersion>2020.3.15f2</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scenes\SampleScene\SampleSceneAssets\Scripts\PlayerMovement.cs" />
-    <Compile Include="Assets\Miscellaneous\DebugCameraController.cs" />
-    <Compile Include="Assets\Scenes\SampleScene\SampleSceneAssets\Scripts\SimpleCameraController.cs" />
-    <Compile Include="Assets\Miscellaneous\NoFarPlane.cs" />
-    <Compile Include="Assets\Scenes\SampleScene\SampleSceneAssets\TutorialInfo\Scripts\Readme.cs" />
-    <Compile Include="Assets\Terrain\TerrainSystem.cs" />
-    <Compile Include="Assets\Scenes\SampleScene\SampleSceneAssets\Scripts\LookWithMouse.cs" />
-    <Compile Include="Assets\Miscellaneous\Utility.cs" />
-    <Compile Include="Assets\Terrain\Water\WaterController.cs" />
     <Compile Include="Assets\Miscellaneous\ExitOnEsc.cs" />
+    <Compile Include="Assets\Miscellaneous\DebugCameraController.cs" />
+    <Compile Include="Assets\Terrain\Water\WaterController.cs" />
+    <Compile Include="Assets\Miscellaneous\NoFarPlane.cs" />
+    <Compile Include="Assets\Terrain\TerrainSystem.cs" />
+    <Compile Include="Assets\Miscellaneous\Utility.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Terrain\Shaders\Constants.cginc" />

@@ -280,7 +280,7 @@ Material:
     - _UVDetailsMappingMask: {r: 1, g: 0, b: 0, a: 0}
     - _UVMappingMask: {r: 1, g: 0, b: 0, a: 0}
     - _UVMappingMaskEmissive: {r: 1, g: 0, b: 0, a: 0}
-    - uTerrain_textureSize: {r: 2029, g: 476, b: 0, a: 0}
+    - uTerrain_textureSize: {r: 991, g: 244, b: 0, a: 0}
   m_BuildTextureStacks: []
 --- !u!114 &2310463054348017378
 MonoBehaviour:
