@@ -6,6 +6,8 @@ A real-time height map based terrain renderer with LOD, made using Unity.
 
 ## Installation 
 
+If you only need the binaries, you can get them [here](https://github.com/roopekt/InfiniteFlatTerrain/releases). Otherwise:
+
  1. Clone the repository
 	```shell
 	git clone https://github.com/roopekt/InfiniteFlatTerrain
@@ -14,7 +16,7 @@ A real-time height map based terrain renderer with LOD, made using Unity.
 	https://visualstudio.microsoft.com/downloads/
 3. Install Unity
 	- Install Unity Hub from https://unity3d.com/get-unity/download
-	- Using the hub, install  an editor with the version 2020.3 LTS. Remember to check visual studio integration when prompted about additional packages.
+	- Using the hub, install  an editor with the version 2020.3.15f2 (LTS). Remember to check visual studio integration when prompted about additional packages.
 4. Locate and open the project trough Unity Hub
 5. Install Free HDR Sky to the project
 	- the asset is available for free on the asset store [here](https://assetstore.unity.com/packages/2d/textures-materials/sky/free-hdr-sky-61217)
