@@ -19,8 +19,8 @@ If you only need the binaries, you can get them [here](https://github.com/roopek
 	- Using the hub, install  an editor with the version 2020.3.15f2 (LTS). Remember to check visual studio integration when prompted about additional packages.
 4. Locate and open the project trough Unity Hub
 5. Install Free HDR Sky to the project
-	- the asset is available for free on the asset store [here](https://assetstore.unity.com/packages/2d/textures-materials/sky/free-hdr-sky-61217)
-	- the asset must be installed separately as the license doesn't allow to distribute it as a part of an open source project
+	- The asset is available for free on the asset store [here](https://assetstore.unity.com/packages/2d/textures-materials/sky/free-hdr-sky-61217)
+	- The asset must be installed separately as the license doesn't allow to distribute it as a part of an open source project
 
 ## Usage 
 
