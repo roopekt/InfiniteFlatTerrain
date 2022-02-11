@@ -10,7 +10,7 @@ If you only need the binaries, you can get them [here](https://github.com/roopek
 
  1. Clone the repository
 	```shell
-	git clone https://github.com/roopekt/InfiniteFlatTerrain
+	git clone https://github.com/roopekt/InfiniteFlatTerrain.git
 	```
 2. Install Visual Studio
 	https://visualstudio.microsoft.com/downloads/
