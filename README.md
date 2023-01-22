@@ -1,6 +1,6 @@
 # Infinite Flat Terrain 
 
-A real-time height map based terrain renderer with LOD, made using Unity. 
+A real-time height map based terrain renderer with LOD, made using Unity. Almost everything happens on the GPU.
 <br/><br/>
 ![Close and far example of the terrain](https://github.com/roopekt/InfiniteFlatTerrain/blob/main/ReadmeData/close_and_far_example.png)
 
@@ -44,7 +44,7 @@ If you only need the binaries, you can get them [here](https://github.com/roopek
 
 This project is distributed under the MIT License. See `LICENSE.txt` for more information.
 
-## Acknowledgments
+## Acknowledgements
 
 - The skybox is part of [Free HDR Sky](https://assetstore.unity.com/packages/2d/textures-materials/sky/free-hdr-sky-61217) by ProAssets
 
